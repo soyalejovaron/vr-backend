@@ -142,8 +142,9 @@ app.post('/addSensor', (req, res) => {
         nombreSensorH: req.body.nombreSensor,
         colorSensorH: req.body.colorSensor,
         datosSensorH: req.body.datosSensor,
-        estadoSensorH: req.body.estadoSensor,
+        id_estado: req.body.estadoSensor,
         id_planta: req.body.plantaSensor,  
+        fechaCreacionH: new Date(),  
     };
 
     connection.query(sql, sensorObject, err => {
@@ -156,7 +157,7 @@ app.put('/updateSensor/:idSensor', (req, res) => {
     const { idSensor } = req.params;
     const {tipoSensor, nombreSensor, colorSensor, datosSensor, plantaSensor, estadoSensor} = req.body;
     const sql = `UPDATE sensorH SET tipoSensorH = '${tipoSensor}' , nombreSensorH = '${nombreSensor}' , colorSensorH = '${colorSensor}', datosSensorH = '${datosSensor}',
-    estadoSensorH = '${estadoSensor}', id_planta = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
+    id_estado = '${estadoSensor}', id_planta = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
 
      connection.query(sql, err => {
         if (err) throw err;
