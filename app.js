@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
     res.send("Welcome")
 });
 
-/* -------------------estados-----------------------*/
+/*-------------------Estados-------------------------*/
 
 app.get('/estados', (req, res) => {
     const sql = 'SELECT * FROM estados';
@@ -44,6 +44,8 @@ app.get('/estados', (req, res) => {
         }
     });
 });
+
+
 
 /* -------------------Plantas-------------------------*/
 
@@ -141,8 +143,6 @@ app.post('/addSensor', (req, res) => {
         tipoSensorH: req.body.tipoSensor,
         nombreSensorH: req.body.nombreSensor,
         colorSensorH: req.body.colorSensor,
-        datosSensorH: req.body.datosSensor,
-        id_estado: req.body.estadoSensor,
         id_planta: req.body.plantaSensor,  
         fechaCreacionH: new Date(),  
     };
@@ -155,9 +155,9 @@ app.post('/addSensor', (req, res) => {
 
 app.put('/updateSensor/:idSensor', (req, res) => {
     const { idSensor } = req.params;
-    const {tipoSensor, nombreSensor, colorSensor, datosSensor, plantaSensor, estadoSensor} = req.body;
-    const sql = `UPDATE sensorH SET tipoSensorH = '${tipoSensor}' , nombreSensorH = '${nombreSensor}' , colorSensorH = '${colorSensor}', datosSensorH = '${datosSensor}',
-    id_estado = '${estadoSensor}', id_planta = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
+    const {tipoSensor, nombreSensor, colorSensor, plantaSensor} = req.body;
+    const sql = `UPDATE sensorH SET tipoSensorH = '${tipoSensor}' , nombreSensorH = '${nombreSensor}' , colorSensorH = '${colorSensor}',
+     id_planta = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
 
      connection.query(sql, err => {
         if (err) throw err;
@@ -210,7 +210,6 @@ app.post('/addSensorT', (req, res) => {
         tipoSensorT: req.body.tipoSensor,
         nombreSensorT: req.body.nombreSensor,
         colorSensorT: req.body.colorSensor,
-        datosSensorT: req.body.datosSensor,
         id_estado: req.body.estadoSensor,
         id_planta: req.body.plantaSensor,  
     };
@@ -223,8 +222,8 @@ app.post('/addSensorT', (req, res) => {
 
 app.put('/updateSensorT/:idSensor', (req, res) => {
     const { idSensor } = req.params;
-    const {tipoSensor, nombreSensor, colorSensor, datosSensor, plantaSensor, estadoSensor} = req.body;
-    const sql = `UPDATE sensorT SET tipoSensorT = '${tipoSensor}' , nombreSensorT = '${nombreSensor}' , colorSensorT = '${colorSensor}', datosSensorT = '${datosSensor}',
+    const {tipoSensor, nombreSensor, colorSensor, plantaSensor, estadoSensor} = req.body;
+    const sql = `UPDATE sensorT SET tipoSensorT = '${tipoSensor}' , nombreSensorT = '${nombreSensor}' , colorSensorT = '${colorSensor}',
      id_planta = '${plantaSensor}', id_estado = '${estadoSensor}' WHERE idSensorT = ${idSensor}`
 
      connection.query(sql, err => {
