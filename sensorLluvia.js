@@ -1,11 +1,28 @@
+const path = require('path');
 const express = require('express');
+const Serialport = require('serialport');
+const ReadLine = Serialport.parsers.Readline;
 const mysql = require('mysql');
+
+
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname +'/public/index.html');
+});
+  
+  // static files
+app.use(express.static(path.join(__dirname, 'public')));
+  
+
+
+app.use(express.static(__dirname + '/public')); 
 
 const bodyParser = require('body-parser');
 
 const PORT = process.env.PORT || 3050;
-
-const app = express();
 
 app.use(bodyParser.json());
 
@@ -27,8 +44,6 @@ app.use((req, res, next) => {
 });
 
 
-const Serialport = require('serialport');
-const ReadLine = Serialport.parsers.Readline;
 
 const port = new Serialport('COM3',{
     baudRate: 9600
@@ -41,25 +56,51 @@ parser.on('open', function (){
 });
 
 parser.on('data', function (data){
-    let humedad = parseInt(data);
+    let idL = 1;
+    let lluvia = parseInt(data);
     let descripcion;
     let lecturaPorcentaje;
-    let estado = "Activo";
-    console.log(humedad);
-    
-    const sql = `INSERT INTO registroHumedad SET ?`;
+    let estado = "No está lloviendo";
+
+    console.log(lluvia);
+    if (lluvia < 300){ 
+        descripcion = "¡Está lloviendo fuerte!";
+        lecturaPorcentaje = 100;
+        estado="LLoviendo";
+
+    } else if (lluvia < 500){ 
+        descripcion = "La lluvia es moderada";
+        lecturaPorcentaje = 50;
+        estado="Lloviendo";
+    }else{
+        descripcion = "No se ha detectado lluvia";
+        lecturaPorcentaje = 0;
+        estado= "No está lloviendo";
+    }
+   /*  const sql = `INSERT INTO registroHumedad SET ?`;
     const sensorObject = {
-        porcentajeH: lecturaPorcentaje,
-        estadoH: estado,
-        descripcionH: descripcion,
+        porcentajeL: lecturaPorcentaje,
+        estadoL: estado,
+        descripcionL: descripcion
     };
     connection.query(sql, sensorObject, err => {
         if (err) throw err;
         console.log("Registro guardado");
-    });
+    }); */
+    const sql = `UPDATE sensorL SET porcentajeL = '${lecturaPorcentaje}', estadoL = '${estado}' , descripcionL = '${descripcion}'
+    WHERE idL = ${idL}`
+    
+    connection.query(sql, err => {
+        if (err) throw err;
+            console.log("Estado de lluvia actualizado");
+        });
     
 });
 
 port.on('error', function(err){
     console.log(err);
+});
+
+server.listen(3001, ()=>{
+    console.log('Servidor en el puerto: ', 3001);
 });

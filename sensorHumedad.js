@@ -60,10 +60,12 @@ parser.on('data', function (data){
     let descripcion;
     let lecturaPorcentaje;
     let estado = "Activo";
+    let idSensorHumedad = 1;
+
     console.log(humedad);
     if (humedad >= 1000){
         descripcion = "El sensor está fuera de la tierra";
-        lecturaPorcentaje = 0 + "%";
+        lecturaPorcentaje = 0;
         porcentaje = 0;
         io.emit('humedad:data',{
             value: porcentaje
@@ -71,7 +73,7 @@ parser.on('data', function (data){
     }
     else if (humedad < 1000 && humedad >= 600){
         descripcion = "El suela está seco";
-        lecturaPorcentaje = 40 + "%";
+        lecturaPorcentaje = 40;
         
         porcentaje = 40;
         io.emit('humedad:data',{
@@ -80,7 +82,7 @@ parser.on('data', function (data){
     }
     else if (humedad < 600 && humedad >= 450){
         descripcion = "El suela está humedo";
-        lecturaPorcentaje = 60 + "%";
+        lecturaPorcentaje = 60;
         porcentaje = 60;
         io.emit('humedad:data',{
             value: porcentaje
@@ -88,22 +90,23 @@ parser.on('data', function (data){
     }
     else if (humedad < 450){ 
         descripcion = "¡El suelo está demasiado humedo!";
-        lecturaPorcentaje = 100 + "%";
+        lecturaPorcentaje = 100;
         porcentaje = 100;
         io.emit('humedad:data',{
             value: porcentaje
         });
     }
-   /*  const sql = `INSERT INTO registroHumedad SET ?`;
+    const sql = `INSERT INTO registroHumedad SET ?`;
     const sensorObject = {
         porcentajeH: lecturaPorcentaje,
         estadoH: estado,
         descripcionH: descripcion,
+        idSensorH: idSensorHumedad
     };
     connection.query(sql, sensorObject, err => {
         if (err) throw err;
         console.log("Registro guardado");
-    }); */
+    });
     
 });
 

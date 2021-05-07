@@ -17,7 +17,7 @@ const chartAreaBorder = {
 var ctx = document.getElementById('myChart').getContext('2d');
 var chart = new Chart(ctx, {
   // Tipo de grafica
-  type: 'bar',
+  type: 'line',
 
   // La data para el dataset
   data: {

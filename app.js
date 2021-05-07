@@ -31,10 +31,10 @@ app.get('/', (req, res) => {
     res.send("Welcome")
 });
 
-/*-------------------Estados-------------------------*/
+/*------------------registro de la humedad-----------------*/
 
-app.get('/estados', (req, res) => {
-    const sql = 'SELECT * FROM estados';
+app.get('/registrosHumedad', (req, res) => {
+    const sql = 'SELECT * FROM registroHumedad';
     connection.query(sql, (err, results) => {
         if (err) throw err;
         if (results.length > 0) {
@@ -45,7 +45,60 @@ app.get('/estados', (req, res) => {
     });
 });
 
+/*--------------------consulta para traer el ultimo registro de humedad------------------- */
+app.get('/registroHumedad', (req, res) => {
+    const sql = 'SELECT * FROM registroHumedad ORDER BY idH DESC limit 1';
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json({message: 'No hay resultados'});
+        }
+    });
+});
 
+/*------------------registro de la temperatura------------*/
+
+app.get('/registrosTemperatura', (req, res) => {
+    const sql = 'SELECT * FROM registroTemperatura';
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json({message: 'No hay resultados'});
+        }
+    });
+});
+
+/*--------------------consulta para traer el ultimo registro de humedad------------------- */
+
+app.get('/registroTemperatura', (req, res) => {
+    const sql = 'SELECT * FROM registroTemperatura ORDER BY idT DESC limit 1';
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json({message: 'No hay resultados'});
+        }
+    });
+});
+
+/*------------------- Obtener registro de la lluvia------------------- */
+
+app.get('/registroLluvia', (req, res) => {
+    const sql = 'SELECT * FROM sensorL ORDER BY idL DESC limit 1';
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json({message: 'No hay resultados'});
+        }
+    });
+});
 
 /* -------------------Plantas-------------------------*/
 
@@ -142,9 +195,8 @@ app.post('/addSensor', (req, res) => {
     const sensorObject = {
         tipoSensorH: req.body.tipoSensor,
         nombreSensorH: req.body.nombreSensor,
-        colorSensorH: req.body.colorSensor,
-        id_planta: req.body.plantaSensor,  
-        fechaCreacionH: new Date(),  
+        colorSensorH: req.body.colorSensor, 
+        id_planta: req.body.plantaSensor,    
     };
 
     connection.query(sql, sensorObject, err => {
@@ -210,7 +262,6 @@ app.post('/addSensorT', (req, res) => {
         tipoSensorT: req.body.tipoSensor,
         nombreSensorT: req.body.nombreSensor,
         colorSensorT: req.body.colorSensor,
-        id_estado: req.body.estadoSensor,
         id_planta: req.body.plantaSensor,  
     };
 
@@ -222,9 +273,9 @@ app.post('/addSensorT', (req, res) => {
 
 app.put('/updateSensorT/:idSensor', (req, res) => {
     const { idSensor } = req.params;
-    const {tipoSensor, nombreSensor, colorSensor, plantaSensor, estadoSensor} = req.body;
-    const sql = `UPDATE sensorT SET tipoSensorT = '${tipoSensor}' , nombreSensorT = '${nombreSensor}' , colorSensorT = '${colorSensor}',
-     id_planta = '${plantaSensor}', id_estado = '${estadoSensor}' WHERE idSensorT = ${idSensor}`
+    const {tipoSensor, nombreSensor, colorSensor, plantaSensor} = req.body;
+    const sql = `UPDATE sensorT SET tipoSensorT = '${tipoSensor}' , nombreSensorT = '${nombreSensor}' , colorSensorT = '${colorSensor}', 
+     id_planta = '${plantaSensor}' WHERE idSensorT = ${idSensor}`
 
      connection.query(sql, err => {
         if (err) throw err;
