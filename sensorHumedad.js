@@ -1,32 +1,43 @@
 const path = require('path');
+// Creamos una constante donde instanciaremos y guardaremos express, el cual usaremos para crear nuestro servidor 
 const express = require('express');
+// En una constante, guardamos y requerimos el modulo "serialport", el cual nos ayudará a conectarnos al puerto serial del arduino
 const Serialport = require('serialport');
+// En esta constante, usaremos el metodo "parsers" y "ReadLine", los cuales nos permitiran leer y guardar los datos que recibimos a través del puerto serial
 const ReadLine = Serialport.parsers.Readline;
+// En una constante guardamos el modulo o mejor dicho, el driver de conexión de MySql, el cual nos ayudará a comunicarnos, generar consultar con MySql
 const mysql = require('mysql');
 
-
+// En una constante con N nombre, instanciaremos express, con el fin de poder hacer uso de todas sus funcionalidad, pasarle datos, crear rutas, etc.
 const app = express();
+// En una constante requeriremos el modulo "http" y le pasaremos el servidor de "express", lo cual nos posibilita comunicarnos con este protocolo con otros servidores
 const server = require('http').Server(app);
+// En una constante requerimos socket, en el cual requerimos el modulo de "socket.io", y le pasaremos la constante donde anteriormente guardamos express
 const io = require('socket.io')(server);
 
+/* Empezaremos a crear APIS rest: estas, son una serie de metodos funcionales, los cuales en este caso, se encargaran de ejecutar las consultas SQL de MySQL,
+donde habrán dos parametros fundamentales, el req y el res. El primero nos servirá para requerir datos de angular y así enviarlos a MySQL, ademas,
+le daremos una respuesta al usuario, donde dependiendo de lo que se requiera, se dará una respuesta diferente, puede ser un mensaje o una serie de datos que el usuario
+no verá pero que el fronted usará para mostrarlos o hacer multiples operaciones o validaciones. */
+
+// Creamos la primera ruta, la cual será la encargada de darle la bienvenida al usuario, o sea, será la primer interfaz visible, ademas, le indicamos que archivo html se renderizará al entrar
 app.get('/', (req, res) => {
     res.sendFile(__dirname +'/public/index.html');
 });
   
-  // static files
+// Especificamos donde se encontraran los archivos estaticos, asi como, las imagenes, el html, el css, el js, etc.
 app.use(express.static(path.join(__dirname, 'public')));
-  
-
-
 app.use(express.static(__dirname + '/public')); 
 
+// Creamos una constante donde requeriremos body-parser, la cual nos ayudará a acceder al cuerpo de las peticiones que se hagan de N clientes, en este caso, angular
 const bodyParser = require('body-parser');
 
+/* Creamos una constante donde guardaremos el puerto por el cual correrá el servidor de express */
 const PORT = process.env.PORT || 3050;
-
 app.use(bodyParser.json());
 
-// MYSQL 
+/* Creamos una constante para almacenar y crear la conexión y su configuración necesaria para acceder al servidor y base de datos de MySQL
+para eso, usamos el metodo "createConnection", indicando a su vez la librería de MySQL*/ 
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -34,7 +45,7 @@ const connection = mysql.createConnection({
     database: 'viveregistro'
 });
 
-// Configurar cabeceras y cors
+// Usamos el metodo "use", para configurar las cabeceras y los CORS del servidor, donde indicaremos los permisos, peticiones, formatos, las cuales permitiran al servidor de express comunicarse con otros servidores sin problemas */
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
@@ -44,25 +55,34 @@ app.use((req, res, next) => {
 });
 
 
-
+// En la constante "port" instanciaremos el modulo de "serialport", donde indicaremos el puerto USB por el cual se está conectando el arduino, ademas, indicaremos los voltios con los cuales se estan mandando los datos del mismo
 const port = new Serialport('COM3',{
     baudRate: 9600
 });
 
+// En una constante, guardamos el resultado de darle un formato a los datos provenientes del puerto del arduino, el cual está guardado en una constante "port"
 const parser = port.pipe(new ReadLine({ delimiter: '\r\n' }));
 
-parser.on('open', function (){
+// Iniciamos un stream o un evento, el cual me indicará el inicio del stream
+parser.on('open', ()=>{
     console.log('Conectado con exito');
 });
 
-parser.on('data', function (data){
+/* Seguimos con el stream que ya iniciamos, el cual se encargará de guardar los datos que llegan por el puerto del arduino, 
+aqui haremos multiples validaciones a este string que llega, y a su vez, lo enviaremos a una consulta MySQL, donde se guardaran y enviaran estos datos
+*/
+parser.on('data', (data)=>{
+    // Hacemos un casting a la cadena que llega por el puerto serial
     let humedad = parseInt(data);
     let descripcion;
     let lecturaPorcentaje;
     let estado = "Activo";
     let idSensorHumedad = 1;
 
+    // Mostramos estos datos que llegan para verificar si estan entrando correctamente
     console.log(humedad);
+
+    //Iniciamos las validaciones, para ello, usamos condicionales donde dependiendo de la cantidad de resistencia que se emita, podemos calcular el nivel de humedad de la planta
     if (humedad >= 1000){
         descripcion = "El sensor está fuera de la tierra";
         lecturaPorcentaje = 0;
@@ -96,6 +116,7 @@ parser.on('data', function (data){
             value: porcentaje
         });
     }
+    // Creamos la consulta SQL, para enviar los datos a la base de datos MySQL
     const sql = `INSERT INTO registroHumedad SET ?`;
     const sensorObject = {
         porcentajeH: lecturaPorcentaje,
@@ -103,6 +124,7 @@ parser.on('data', function (data){
         descripcionH: descripcion,
         idSensorH: idSensorHumedad
     };
+    // Ejecutamos el query y capturamos errores
     connection.query(sql, sensorObject, err => {
         if (err) throw err;
         console.log("Registro guardado");
@@ -110,10 +132,12 @@ parser.on('data', function (data){
     
 });
 
-port.on('error', function(err){
+// Si se llega a ocasionar un error en el stream, se mostrará por consola 
+port.on('error', (err)=>{
     console.log(err);
 });
 
+// Con el metodo "listen", modificamos o añadimos el puerto por el cual el servidor estará ejecutandose
 server.listen(3000, ()=>{
     console.log('Servidor en el puerto: ', 3000);
 });

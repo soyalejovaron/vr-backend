@@ -30,7 +30,7 @@ var chart = new Chart(ctx, {
     }]
   },
 
-  // Configuration options go here
+  // Configuracion de la grafica
   options: {
     plugins: {
       chartAreaBorder: {
@@ -44,8 +44,9 @@ var chart = new Chart(ctx, {
   plugins: [chartAreaBorder]
 });
 
+/* Contador para los labels de la grafica */
 let counter = 0;
-socket.on('humedad:data', function (dataSerial) {
+socket.on('humedad:data', (dataSerial)=> {
   // console.log(dataSerial);
   chart.data.labels.push(counter);
   chart.data.datasets.forEach(dataset => {
