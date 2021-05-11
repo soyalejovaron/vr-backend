@@ -71,46 +71,103 @@ parser.on('open', ()=>{
 /* Seguimos con el stream que ya iniciamos, el cual se encargará de guardar los datos que llegan por el puerto del arduino, 
 aqui haremos multiples validaciones a este string que llega, y a su vez, lo enviaremos a una consulta MySQL, donde se guardaran y enviaran estos datos
 */
-parser.on('data', function (data){
-    let temperatura = parseInt(data);
-    let descripcion;
-    let lecturaPorcentaje;
-    let estado = "Activo";
-    console.log(temperatura);
-    if (temperatura >= 1000){
-        descripcion = "No hay calor";
-        lecturaPorcentaje = 0 + "°c";
-        console.log(descripcion);
-        console.log(lecturaPorcentaje);
+parser.on('data', (data)=>{
+    // Hacemos un casting a la cadena que llega por el puerto serial
+
+    datos = data.split(',');
+    v_lluvia = datos[0];
+    v_humedad = datos[1];
+
+    let descripcionLluvia;
+    let descripcionHumedad;
+    let descripcionTemperatura;
+    let porcentajeLluvia;
+    let porcentajeHumedad;
+    let porcentajeTemperatura;
+    let estadoHumedad;
+    let estadoLluvia;
+
+    let idSensorHumedad = 1;
+    let idL = 1;
+
+    // Mostramos estos datos que llegan para verificar si estan entrando correctamente
+    console.log(v_lluvia);
+    console.log(v_humedad);
+
+    //Iniciamos las validaciones, para ello, usamos condicionales donde dependiendo de la cantidad de resistencia que se emita, podemos calcular el nivel de humedad de la planta
+    if (v_humedad >= 1000){
+        descripcionHumedad = "El sensor está fuera de la tierra";
+        porcentajeHumedad = 0;
+        estadoHumedad="Activo";
+        io.emit('humedad:data',{
+            value: porcentajeHumedad
+        });
     }
-    else if (temperatura < 1000 && temperatura >= 600){
-        descripcion = "";
-        lecturaPorcentaje = 40 + "°c";
-        console.log(descripcion);
-        console.log(lecturaPorcentaje);
+    else if (v_humedad < 1000 && v_humedad >= 600){
+        descripcionHumedad = "El suela está seco";
+        porcentajeHumedad = 40;
+        estadoHumedad="Activo";
+        io.emit('humedad:data',{
+            value: porcentajeHumedad
+        });
     }
-    else if (temperatura < 600 && temperatura >= 450){
-        descripcion = "";
-        lecturaPorcentaje = 60 + "°c";
-        console.log(descripcion);
-        console.log(lecturaPorcentaje);
+    else if (v_humedad < 600 && v_humedad >= 450){
+        descripcionHumedad = "El suela está humedo";
+        porcentajeHumedad = 60;
+        estadoHumedad="Activo";
+        io.emit('humedad:data',{
+            value: porcentajeHumedad
+        });
     }
-    else if (temperatura < 450){ 
-        descripcion = "";
-        lecturaPorcentaje = 100 + "%";
-        console.log(descripcion);
-        console.log(lecturaPorcentaje);
+    else if (v_humedad < 450){ 
+        descripcionHumedad = "¡El suelo está demasiado humedo!";
+        porcentajeHumedad = 100;
+        estadoHumedad="Activo";
+        io.emit('humedad:data',{
+            value: porcentajeHumedad
+        });
     }
-    const sql = `INSERT INTO registroTemperatura SET ?`;
+    // Creamos la consulta SQL, para enviar los datos a la base de datos MySQL
+    const sql = `INSERT INTO registroHumedad SET ?`;
     const sensorObject = {
-        porcentajeT: lecturaPorcentaje,
-        estadoT: estado,
-        descripcionT: descripcion,
+        porcentajeH: porcentajeHumedad,
+        estadoH: estadoHumedad,
+        descripcionH: descripcionHumedad,
+        idSensorH: idSensorHumedad
     };
+    // Ejecutamos el query y capturamos errores
     connection.query(sql, sensorObject, err => {
         if (err) throw err;
         console.log("Registro guardado");
     });
+
+    
+
+    // Validaciones y condicionales para el sensor de lluvia
+    if (v_lluvia < 300){ 
+        descripcionLluvia = "¡Está lloviendo fuerte!";
+        porcentajeLluvia = 100;
+        estadoLluvia="Lloviendo";
+
+    } else if (v_lluvia < 500){ 
+        descripcionLluvia = "La lluvia es moderada";
+        porcentajeLluvia = 50;
+        estadoLluvia="Lloviendo";
+    }else{
+        descripcionLluvia = "No se ha detectado lluvia";
+        porcentajeLluvia = 0;
+        estadoLluvia= "No está lloviendo";
+    }
+
+    // Creamos la consulta SQL, la cual hará un update cada vez que lleguen datos al puerto serial, enviando así N variables y actualizando N datos de la base de datos
+    const sqlLluvia = `UPDATE sensorL SET porcentajeL = '${porcentajeLluvia}', estadoL = '${estadoLluvia}' , descripcionL = '${descripcionLluvia}'
+    WHERE idL = ${idL}`
+    /* ejecutamos la consulta, capturamos los errores y damos un mensaje cuando los datos se guarden en la base de datos */
+    connection.query(sqlLluvia, err => {
+        if (err) throw err;
+            console.log("Estado de lluvia actualizado");
+        });
+    
     
 });
 
@@ -120,6 +177,6 @@ port.on('error', (err)=>{
 });
 
 // Con el metodo "listen", modificamos o añadimos el puerto por el cual el servidor estará ejecutandose
-server.listen(3002, ()=>{
-    console.log('Servidor en el puerto: ', 3002);
+server.listen(3000, ()=>{
+    console.log('Servidor en el puerto: ', 3000);
 });
