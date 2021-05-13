@@ -138,7 +138,7 @@ parser.on('data', (data)=>{
     // Ejecutamos el query y capturamos errores
     connection.query(sql, sensorObject, err => {
         if (err) throw err;
-        console.log("Registro guardado");
+        console.log("Registro de humedad guardado");
     });
 
     
