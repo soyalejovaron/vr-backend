@@ -1,3 +1,6 @@
+/* Nota: Recuerda que las constantes son un espacio de almacenamiento que se guarda para una información especifica,
+ademas, una vez se define esta constante, su valor no puede cambiar en el tiempo */ 
+
 /* Creamos una constante donde requerimos el modulo de express para la creación del servidor */
 const express = require('express');
 
@@ -14,7 +17,7 @@ const PORT = process.env.PORT || 3050;
 const app = express();
 
 
-/* Creamos una constante para almacenar y crear la conexión y su configuración necesaria para acceder al servidor y base de datos de MySQL
+/* Creamos una constante para almacenar y crear la conexión donde construiremos su configuración necesaria para acceder al servidor y base de datos de MySQL
 para eso, usamos el metodo "createConnection", indicando a su vez la librería de MySQL*/
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -271,7 +274,7 @@ app.post('/addSensor', (req, res) => {
         tipoSensorH: req.body.tipoSensor,
         nombreSensorH: req.body.nombreSensor,
         colorSensorH: req.body.colorSensor, 
-        id_planta: req.body.plantaSensor,    
+        plantaSensorH: req.body.plantaSensor,    
     };
     // Usamos el metodo "query", el cual nos ayudará a ejecutar la consulta SQL, ademas, tambien podremos capturar todo tipo de errores que puedan presentarse en la ejecución de la misma
     connection.query(sql, sensorObject, err => {
@@ -290,7 +293,7 @@ app.put('/updateSensor/:idSensor', (req, res) => {
 
     // Constante en la cual, guardaremos la consulta SQL que se ejecutará en esta API rest
     const sql = `UPDATE sensorH SET tipoSensorH = '${tipoSensor}' , nombreSensorH = '${nombreSensor}' , colorSensorH = '${colorSensor}',
-     id_planta = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
+     plantaSensorH = '${plantaSensor}' WHERE idSensorH = ${idSensor}`
     // Usamos el metodo "query", el cual nos ayudará a ejecutar la consulta SQL, ademas, tambien podremos capturar todo tipo de errores que puedan presentarse en la ejecución de la misma
     connection.query(sql, err => {
         if (err) throw err;
@@ -362,7 +365,7 @@ app.post('/addSensorT', (req, res) => {
         tipoSensorT: req.body.tipoSensor,
         nombreSensorT: req.body.nombreSensor,
         colorSensorT: req.body.colorSensor,
-        id_planta: req.body.plantaSensor,  
+        plantaSensorT: req.body.plantaSensor,  
     };
     // Usamos el metodo "query", el cual nos ayudará a ejecutar la consulta SQL, ademas, a capturar todo tipo de error que pueda presentarse en este proceso
     connection.query(sql, sensorObject, err => {
@@ -381,7 +384,7 @@ app.put('/updateSensorT/:idSensor', (req, res) => {
 
     // Constante en la cual, guardaremos la consulta SQL que se ejecutará en esta API rest
     const sql = `UPDATE sensorT SET tipoSensorT = '${tipoSensor}' , nombreSensorT = '${nombreSensor}' , colorSensorT = '${colorSensor}', 
-     id_planta = '${plantaSensor}' WHERE idSensorT = ${idSensor}`
+     plantaSensorT = '${plantaSensor}' WHERE idSensorT = ${idSensor}`
     // Usamos el metodo "query", el cual nos ayudará a ejecutar la consulta SQL, ademas, a capturar todo tipo de error que pueda presentarse en este proceso
     connection.query(sql, err => {
         if (err) throw err;
@@ -406,7 +409,6 @@ app.delete('/deleteSensorT/:idSensor', (req, res) => {
 });
 
     
-
 
 // Verificamos la conexión a MySQL con el metodo "connect", en caso de ser exitosa, mandamos un mensaje 
 connection.connect(error => {

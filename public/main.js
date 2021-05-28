@@ -23,9 +23,9 @@ var chart = new Chart(ctx, {
   data: {
     labels: ["Serial"],
     datasets: [{
-      label: "Sensor Humedad 1",
-      backgroundColor: 'rgb(52, 73, 94)',
-      borderColor: 'rgb(41, 128, 185)',
+      label: "Humedad",
+      backgroundColor: 'rgb(0, 0, 52)',
+      borderColor: 'rgb(0, 0, 41)',
       data: [],
     }]
   },
@@ -36,7 +36,7 @@ var chart = new Chart(ctx, {
       chartAreaBorder: {
         borderColor: 'blue',
         borderWidth: 2,
-        borderDash: [2, 2], 
+        borderDash: [1, 1], 
         borderDashOffset: 2,
       }
     }
@@ -55,5 +55,48 @@ socket.on('humedad:data', (dataSerial)=> {
   counter++;
   chart.update();
 });
+
+var ctx2 = document.getElementById('myChart2').getContext('2d');
+var chart2 = new Chart(ctx2, {
+  // Tipo de grafica
+  type: 'line',
+
+  // La data para el dataset
+  data: {
+    labels: ["Serial"],
+    datasets: [{
+      label: "Temperatura",
+      backgroundColor: 'rgb(52, 0, 0)',
+      borderColor: 'rgb(41, 0, 0)',
+      data: [],
+    }]
+  },
+
+  // Configuracion de la grafica
+  options: {
+    plugins: {
+      chartAreaBorder: {
+        borderColor: 'red',
+        borderWidth: 2,
+        borderDash: [1, 1], 
+        borderDashOffset: 2,
+      }
+    }
+  },
+  plugins: [chartAreaBorder]
+});
+
+/* Contador para los labels de la grafica */
+let counter2 = 0;
+socket.on('temperatura:data', (dataSerial)=> {
+  // console.log(dataSerial);
+  chart2.data.labels.push(counter2);
+  chart2.data.datasets.forEach(dataset => {
+    dataset.data.push(dataSerial.value);
+  });
+  counter2++;
+  chart2.update();
+});
+
 
 

@@ -11,11 +11,22 @@
     <!-- Logo de ViveRegistro -->
     <div class="container text-center">
       <img src="./imagenes/logo-dark.svg" alt="" width="100px" class="m-auto">
+      <h1>Vive<span style="color: green;">Registro</span></h1>
     </div>
     <!--  Creamos un "canvas", donde podremos darle forma y pintar nuestra grafica de humedad -->    
     <div class="container">
-      <canvas id="myChart"></canvas>
+      <div class="row">
+        <div class="col-6">
+          <canvas id="myChart"></canvas>
+        </div>
+        <div class="col-6">
+          <canvas id="myChart2"></canvas>
+        </div>
+      </div>
       <button class="btn btn-info mt-3 float-right"><a style="text-decoration: none; color: white;" href="http://localhost:4200/graficaRadarH">Volver</a></button>
+    </div>
+
+    <div class="container">
     </div>
      
     <!-- Requerimos y ejecutamos los scripts de socket, chats, y el main.js donde tendremos nuestro codigo javascript de las graficas -->

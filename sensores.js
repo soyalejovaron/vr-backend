@@ -1,3 +1,6 @@
+/* Nota: Recuerda que las constantes son un espacio de almacenamiento que se guarda para una información
+ademas, una vez se define esta constante, su valor no puede cambiar en el tiempo */ 
+
 const path = require('path');
 // Creamos una constante donde instanciaremos y guardaremos express, el cual usaremos para crear nuestro servidor 
 const express = require('express');
@@ -77,6 +80,8 @@ parser.on('data', (data)=>{
     datos = data.split(',');
     v_lluvia = datos[0];
     v_humedad = datos[1];
+    v_humedadPorcentaje = datos[2];
+    v_temperatura = datos[3];
 
     let descripcionLluvia;
     let descripcionHumedad;
@@ -89,42 +94,44 @@ parser.on('data', (data)=>{
 
     let idSensorHumedad = 1;
     let idL = 1;
+    let idSensorTemperatura = 1;
 
     // Mostramos estos datos que llegan para verificar si estan entrando correctamente
     console.log(v_lluvia);
-    console.log(v_humedad);
-
+    console.log(v_humedadPorcentaje);
+    console.log(v_temperatura);
+    
     //Iniciamos las validaciones, para ello, usamos condicionales donde dependiendo de la cantidad de resistencia que se emita, podemos calcular el nivel de humedad de la planta
     if (v_humedad >= 1000){
         descripcionHumedad = "El sensor está fuera de la tierra";
-        porcentajeHumedad = 0;
+        porcentajeHumedad = v_humedadPorcentaje;
         estadoHumedad="Activo";
         io.emit('humedad:data',{
-            value: porcentajeHumedad
+            value: v_humedadPorcentaje
         });
     }
     else if (v_humedad < 1000 && v_humedad >= 600){
         descripcionHumedad = "El suela está seco";
-        porcentajeHumedad = 40;
+        porcentajeHumedad = v_humedadPorcentaje;
         estadoHumedad="Activo";
         io.emit('humedad:data',{
-            value: porcentajeHumedad
+            value: v_humedadPorcentaje
         });
     }
     else if (v_humedad < 600 && v_humedad >= 450){
         descripcionHumedad = "El suela está humedo";
-        porcentajeHumedad = 60;
+        porcentajeHumedad = v_humedadPorcentaje;
         estadoHumedad="Activo";
         io.emit('humedad:data',{
-            value: porcentajeHumedad
+            value: v_humedadPorcentaje
         });
     }
     else if (v_humedad < 450){ 
         descripcionHumedad = "¡El suelo está demasiado humedo!";
-        porcentajeHumedad = 100;
+        porcentajeHumedad = v_humedadPorcentaje;
         estadoHumedad="Activo";
         io.emit('humedad:data',{
-            value: porcentajeHumedad
+            value: v_humedadPorcentaje
         });
     }
     // Creamos la consulta SQL, para enviar los datos a la base de datos MySQL
@@ -141,6 +148,40 @@ parser.on('data', (data)=>{
         console.log("Registro de humedad guardado");
     });
 
+    //Iniciamos las validaciones, para ello, usamos condicionales donde dependiendo de la cantidad de resistencia que se emita, podemos calcular el nivel de humedad de la planta
+    if (v_temperatura > 30 ){
+        descripcionTemperatura = "El aire es caliente";
+        estadoTemperatura="Activo";
+        io.emit('temperatura:data',{
+            value: v_temperatura
+        });
+    }else if (v_temperatura < 30 && v_temperatura > 20 ){
+        descripcionTemperatura = "El aire es calido";
+        estadoTemperatura="Activo";
+        io.emit('temperatura:data',{
+            value: v_temperatura
+        });
+    }else if (v_temperatura <= 20 ){
+        descripcionTemperatura = "El aire es frio";
+        estadoTemperatura="Activo";
+        io.emit('temperatura:data',{
+            value: v_temperatura
+        });
+    }
+
+    // Creamos la consulta SQL, para enviar los datos a la base de datos MySQL
+    const sqlTemperatura = `INSERT INTO registroTemperatura SET ?`;
+    const sensorTemperaturaObject = {
+        idSensorT: idSensorTemperatura,
+        porcentajeT: v_temperatura,
+        estadoT: estadoTemperatura,
+        descripcionT: descripcionTemperatura
+    };
+    // Ejecutamos el query y capturamos errores
+    connection.query(sqlTemperatura, sensorTemperaturaObject, err => {
+        if (err) throw err;
+        console.log("Registro de temperatura guardado");
+    });
     
 
     // Validaciones y condicionales para el sensor de lluvia
