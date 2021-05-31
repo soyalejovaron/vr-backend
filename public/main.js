@@ -46,8 +46,8 @@ var chart = new Chart(ctx, {
 
 /* Contador para los labels de la grafica */
 let counter = 0;
+//Escuchamos el evento de la humedad, recibimos los datos a través de la comunación con webscokets y al final los pintamos en graficas
 socket.on('humedad:data', (dataSerial)=> {
-  // console.log(dataSerial);
   chart.data.labels.push(counter);
   chart.data.datasets.forEach(dataset => {
     dataset.data.push(dataSerial.value);
@@ -56,6 +56,7 @@ socket.on('humedad:data', (dataSerial)=> {
   chart.update();
 });
 
+//Ahora hacemos lo mismo pero para las graficas de temperatura
 var ctx2 = document.getElementById('myChart2').getContext('2d');
 var chart2 = new Chart(ctx2, {
   // Tipo de grafica

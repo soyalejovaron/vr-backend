@@ -1,5 +1,5 @@
-/* Nota: Recuerda que las constantes son un espacio de almacenamiento que se guarda para una información
-ademas, una vez se define esta constante, su valor no puede cambiar en el tiempo */ 
+/* Nota: Recuerda que las constantes son un espacio de almacenamiento que se reserva para un serie de datos,
+ademas, una vez se define esta, su valor no puede cambiar en el tiempo */ 
 
 const path = require('path');
 // Creamos una constante donde instanciaremos y guardaremos express, el cual usaremos para crear nuestro servidor 
@@ -66,7 +66,7 @@ const port = new Serialport('COM3',{
 // En una constante, guardamos el resultado de darle un formato a los datos provenientes del puerto del arduino, el cual está guardado en una constante "port"
 const parser = port.pipe(new ReadLine({ delimiter: '\r\n' }));
 
-// Iniciamos un stream o un evento, el cual me indicará el inicio del stream
+// Iniciamos un stream o un evento, el cual me indicará el inicio del stream, o sea, cuando el puerto serial envie señales
 parser.on('open', ()=>{
     console.log('Conectado con exito');
 });
@@ -75,14 +75,14 @@ parser.on('open', ()=>{
 aqui haremos multiples validaciones a este string que llega, y a su vez, lo enviaremos a una consulta MySQL, donde se guardaran y enviaran estos datos
 */
 parser.on('data', (data)=>{
-    // Hacemos un casting a la cadena que llega por el puerto serial
-
+    //En un array guardamos todos los datos que lleguen por el puerto serial, y los separaremos con una coma, así los separaremos e identificaremos cada uno
     datos = data.split(',');
     v_lluvia = datos[0];
     v_humedad = datos[1];
     v_humedadPorcentaje = datos[2];
     v_temperatura = datos[3];
 
+    //Declaramos las variables principales
     let descripcionLluvia;
     let descripcionHumedad;
     let descripcionTemperatura;
