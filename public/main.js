@@ -1,5 +1,7 @@
+//En una constante requerimos los websockets para comunicarnos con el puerto serial
 const socket = io();
 
+//En una constante guardamos las configuraciones de los bordes de las graficas
 const chartAreaBorder = {
   id: 'chartAreaBorder',
   beforeDraw(chart, args, options) {
@@ -14,12 +16,14 @@ const chartAreaBorder = {
   }
 };
 
+//Creamos una variable donde almacenaremos el canvas html, para insertar la grafica
 var ctx = document.getElementById('myChart').getContext('2d');
+//Creamos una variable donde instaciemos la libreria de chat, donde por parametro ingresaremos la variable que almacena la grafica html
 var chart = new Chart(ctx, {
   // Tipo de grafica
   type: 'line',
 
-  // La data para el dataset
+  // Configuración de los labels de la grafica
   data: {
     labels: ["Serial"],
     datasets: [{
@@ -30,7 +34,7 @@ var chart = new Chart(ctx, {
     }]
   },
 
-  // Configuracion de la grafica
+  // Opciones de configuración de la grafica
   options: {
     plugins: {
       chartAreaBorder: {
@@ -59,10 +63,10 @@ socket.on('humedad:data', (dataSerial)=> {
 //Ahora hacemos lo mismo pero para las graficas de temperatura
 var ctx2 = document.getElementById('myChart2').getContext('2d');
 var chart2 = new Chart(ctx2, {
-  // Tipo de grafica
+  // Tipo de grafica, existen varias clase de grafica: line,bar,radar,etc
   type: 'line',
 
-  // La data para el dataset
+  // Configuración de los labels que pertenecen a la grafica de temperatura
   data: {
     labels: ["Serial"],
     datasets: [{

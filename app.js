@@ -47,6 +47,37 @@ app.get('/', (req, res) => {
     res.send("Bienvenido")
 });
 
+app.get('/estadosSistema', (req,res)=>{
+
+    const sql="SELECT * FROM estadoSistema";
+    connection.query(sql, (err, results) => {
+        if (err) throw err;
+        if (results.length > 0) {
+            res.json(results);
+        } else {
+            res.json({message: 'No hay resultados'});
+        }
+    });
+})
+
+// Creamos una API rest, la cual ejecutará una petición "PUT". Esta api requerirá una serie de variables que contendrán diferentes tipos de datos, las cuales se usaran para reemplazar y actualizar los datos de N planta en MySQL (para esto, se usará una consulta SQL) */ 
+app.put('/updateSistema', (req, res) => {
+
+    // Constante que guardará el id de N planta (proporcionado por un servidor cliente)
+    const idSistema = 1;
+    // Constante en la cual almacenaremos múltiples variables que, requeriremos de un servidor cliente, las cuales se usaran para actualizar N planta
+    const {estadoSistema, estadoLinea1, estadoLinea2, estadoLinea3, estadoLinea4} = req.body;
+
+    // Constante en la cual, guardaremos la consulta SQL que se ejecutará en esta API rest
+    const sql = `UPDATE estadoSistema SET estadoSistema = '${estadoSistema}' , estadoLinea1 = '${estadoLinea1}', estadoLinea2 = '${estadoLinea2}', estadoLinea3 = '${estadoLinea3}', estadoLinea4 = '${estadoLinea4}'
+     WHERE idSistema = ${idSistema}`;
+    // Usamos el metodo "query", el cual nos ayudará a ejecutar la consulta SQL, ademas, tambien podremos capturar todo tipo de errores que puedan presentarse en la ejecución de la misma
+    connection.query(sql, err => {
+        if (err) throw err;
+        res.json({message: 'Sistema Actualizada'});
+    });
+});
+
 /*------------------Registro del sensor de humedad-----------------*/
 
 /*Creamos una API rest, la cual recibira una petición "GET", esta, nos servirá para traer todos los registros de la tabla "registrosHumedad"*/
@@ -100,6 +131,7 @@ app.get('/registrosTemperatura', (req, res) => {
         }
     });
 });
+
 
 /*--------------------Traer el ultimo registro del sensor de temperatura------------------- */
 
@@ -207,7 +239,6 @@ app.put('/updatePlanta/:id_planta', (req, res) => {
         if (err) throw err;
         res.json({message: 'Planta Actualizada'});
     });
-
 });
 
 /* Creamos una API rest, la cual ejecutará una petición "DELETE", ademas, por medio de la URL, se recibirá un id de N planta, con el cual se podrá eliminar dicha planta correspondiente a ese id (para esto, se usará una consulta SQL)*/
